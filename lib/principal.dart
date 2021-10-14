@@ -1,4 +1,6 @@
 import 'package:balterra/cambiarcontrasena.dart';
+import 'package:balterra/listavisitas.dart';
+import 'package:balterra/visitaPage.dart';
 import 'package:flutter/material.dart';
 import 'constantes.dart';
 import 'login.dart';
@@ -108,7 +110,7 @@ class PrincipalState extends State<Principal> {
           ),
         ],
       ),
-      body: Center(child: Image(image: AssetImage('images/logo.png'),) ),
+      body: Center(child: Image(image: AssetImage('images/logo.png'), height: 200,) ),
       drawer: Drawer(
         // Add a ListView to the drawer. This ensures the user can scroll
         // through the options in the drawer if there isn't enough vertical
@@ -127,15 +129,30 @@ class PrincipalState extends State<Principal> {
     children..addAll(_buildUserAccounts(context));
 
     if (_tipoUsuario == 'U') children..addAll(_tomaDatos(context));
-    if (_tipoUsuario == 'C') children..addAll(_listaFacturas(context));
+    if (_tipoUsuario == 'C') {
+      children..addAll(_agregarVisita(context))
+        ..add( Divider(
+            color: Colors.grey.shade300,
+            thickness: 2.0))
+        ..add(Text("Consultas",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                color: Colors.grey,
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.bold
+            )),)
+        ..addAll(_listaFacturas(context))
+        ..addAll(_listaVisitas(context));
+
+    }
 
       //..addAll([new Divider()])
       //..addAll(_buildLabelWidgets(context))
-      //..addAll([new Divider()])
       //..addAll(_buildActions(context))
       //..addAll([new Divider()])
       //..addAll(_buildSettingAndHelp(context));
-    return children;
+      return children;
+
   }
 
   List<Widget> _buildUserAccounts(BuildContext context) {
@@ -144,8 +161,8 @@ class PrincipalState extends State<Principal> {
           accountName: Text(_nombreUsuario),
           accountEmail: Text(_email == '' ? _idUsuario : _email),
           currentAccountPicture: new CircleAvatar(
-              backgroundColor: Colors.brown,
-              child: new Text(_nombreUsuario)
+              backgroundColor: Colors.white70,
+              backgroundImage: AssetImage('images/myAvatar.png'),
           ),
       )
     ];
@@ -203,6 +220,56 @@ class PrincipalState extends State<Principal> {
     ];
   }
 
+  List<Widget> _listaVisitas(BuildContext context) {
+    return [
+      new ListTile(
+        title: Row(
+          children: <Widget>[
+            Icon(Icons.line_weight),
+            Padding(
+              padding: EdgeInsets.only(left: 8.0),
+              child: Text('Histórico Visitas'),
+            )
+          ],
+        ),
+        onTap: () =>
+        {
+          Navigator.pop(context),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ListaVisitasPage()),
+          )
+        },
+      ),
+    ];
+  }
 
+  List<Widget> _agregarVisita(BuildContext context) {
+    return [
+      new ListTile(
+        title: Row(
+          children: <Widget>[
+            Icon(Icons.people),
+            Padding(
+              padding: EdgeInsets.only(left: 8.0),
+              child: Text('Nueva Visita'),
+            )
+          ],
+        ),
+        onTap: () =>
+        {
+          Navigator.pop(context),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    VisitaPage()),
+          )
+        },
+      ),
+    ];
+  }
 }
 

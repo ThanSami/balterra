@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
 import 'dart:convert';
 import 'principal.dart';
-
+import 'package:awesome_dialog/awesome_dialog.dart';
 class RecuperarPage extends StatefulWidget{
 
   @override
@@ -209,47 +209,30 @@ class RecuperarState extends State<RecuperarPage> with SingleTickerProviderState
         _mostrarIndicador = 2;
       });
 
-      showDialog(
+      AwesomeDialog(
           context: context,
-          child: new AlertDialog(
-            title: new Text("Recuperación Contaseña"),
-            //content: new Text("Hello World"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                  Center(
-                    child: new SingleChildScrollView(
-                      child: new ListBody(
-                        children: <Widget>[
-                          new Icon(
-                              parsedJson["Error"] ? Icons.error : Icons.check_circle,
-                              color: parsedJson["Error"] ? Colors.red : Colors.green),
-                          new Text("Resultado : " + parsedJson["Mensaje"]),
-                        ],
-                      ),
-                    ),
-                  ),
-                ]
-            ),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text('OK'),
-                onPressed: () {
-                  if (!parsedJson["Error"]) {
-                    Navigator.of(context).pop();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              LoginPage()),
-                    );
-                  } else {
-                    Navigator.of(context).pop();
-                  }
-                },
-              ),
-            ],
-          ));
+          dialogType: parsedJson["Error"] ? DialogType.ERROR : DialogType.SUCCES,
+          headerAnimationLoop: false,
+          animType: AnimType.TOPSLIDE,
+          title: 'Recuperación Contaseña',
+          desc:
+            "Resultado : " + parsedJson["Mensaje"],
+          //btnCancelOnPress: () {},
+          btnOkOnPress: () {
+            if (!parsedJson["Error"]) {
+              Navigator.of(context).pop();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        LoginPage()),
+              );
+            } else {
+              Navigator.of(context).pop();
+            }
+          })
+        ..show();
+
     } else
     {
       setState((){

@@ -29,6 +29,8 @@ dependencies:
   json_annotation: ^2.0.0
   searchable_dropdown: ^1.1.3
   xml: ^4.2.0
+  awesome_dialog: ^1.2.1
+  flutter_barcode_scanner: ^2.0.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -40,7 +42,7 @@ dev_dependencies:
 
   build_runner: ^1.0.0
   json_serializable: ^2.0.0
-  flutter_barcode_scanner: ^1.0.1
+
 
 
 # For information on the generic Dart part of this file, see the
@@ -60,6 +62,8 @@ flutter:
      - images/small-logo.jpg
      - images/background.jpg
      - images/rightarrow.png
+     - images/borderbackground.jpg
+     - images/myAvatar.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

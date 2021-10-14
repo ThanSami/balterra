@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:balterra/scanscreen.dart';
+import 'package:balterra/lecturaDatos.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
@@ -24,6 +24,7 @@ class ListaFacturasState extends State<ListaFacturas> {
   String _nombreUsuario = "";
   String _tipoUsuario = "";
   var _keyScaffold = new GlobalKey<ScaffoldState>();
+  bool _mostrarSpinner = true;
 
   Future<String> getData() async {
 
@@ -56,6 +57,7 @@ class ListaFacturasState extends State<ListaFacturas> {
       }
     else {
       this.setState(() {
+        _mostrarSpinner = false;
         data = parsedJson["Objeto"];
       });
     }
@@ -75,47 +77,71 @@ class ListaFacturasState extends State<ListaFacturas> {
     return new Scaffold(
       key: _keyScaffold,
       appBar: new AppBar(title: new Text("Lista Facturas"), backgroundColor: Constantes.colorPrimario ),
-      body: new ListView.builder(
-        itemCount: data == null ? 0 : data.length,
-        itemBuilder: (BuildContext context, int index){
-          return new GestureDetector(
-            child: new Card(
-              child: Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Stack(
-                    children: <Widget>[
-                      Align(
-                          alignment: Alignment.centerLeft,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start ,
-                            children: <Widget>[
-                              new Text(data[index]["folio"]),
-                              new Text(data[index]["fecha"]),
-                            ],
-                          )
-                      ),
-                      Align(
-                          alignment: Alignment.centerRight,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start ,
-                            children: <Widget>[
-                              new Text(oCcy.format(data[index]["monto"])),
-                              new Text(oCcy.format(data[index]["montoIVA"])),
-                            ],
-                          )
-                      )
-                    ],
-                  )
+      body: Container(
+        decoration: new BoxDecoration(
+            color: Colors.white,
+            image:  new DecorationImage(
+              image: new AssetImage("images/borderbackground.jpg"),
+              fit: BoxFit.fill,
+              colorFilter: new ColorFilter.mode(Colors.black.withOpacity(0.1), BlendMode.dstATop),
+            )
+        ),
+        child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
               ),
-              elevation: 5,
-            ),
-            onTap:  ()=>{
+              Visibility(
+                visible: _mostrarSpinner,
+                child: CircularProgressIndicator(
+                ),
+              ),
+              Expanded(
+                  child: new ListView.builder(
+                        itemCount: data == null ? 0 : data.length,
+                        itemBuilder: (BuildContext context, int index){
+                          return new GestureDetector(
+                            child: new Card(
+                              child: Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Stack(
+                                    children: <Widget>[
+                                      Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start ,
+                                            children: <Widget>[
+                                              new Text(data[index]["folio"]),
+                                              new Text(data[index]["fecha"]),
+                                            ],
+                                          )
+                                      ),
+                                      Align(
+                                          alignment: Alignment.centerRight,
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start ,
+                                            children: <Widget>[
+                                              new Text(oCcy.format(data[index]["monto"])),
+                                              new Text(oCcy.format(data[index]["montoIVA"])),
+                                            ],
+                                          )
+                                      )
+                                    ],
+                                  )
+                              ),
+                              elevation: 5,
+                            ),
+                            onTap:  ()=>{
 
-            },
-          );
-        },
-      ),
-    );
+                            },
+                          );
+                        },
+                      ),
+              ),
+                  ]
+        ),
+        ),
+      );
   }
 
 }

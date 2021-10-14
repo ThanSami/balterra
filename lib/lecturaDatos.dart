@@ -10,15 +10,15 @@ import 'package:xml/xml.dart' as xml;
 import 'constantes.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-
-class ScanScreen extends StatefulWidget {
+import 'package:awesome_dialog/awesome_dialog.dart';
+class LecturaDatos extends StatefulWidget {
   final _idTipoToma;
-  ScanScreen(this._idTipoToma);
+  LecturaDatos(this._idTipoToma);
   @override
-  _ScanState createState() => new _ScanState(_idTipoToma);
+  _LecturaDatosState createState() => new _LecturaDatosState(_idTipoToma);
 }
 
-class _ScanState extends State<ScanScreen> {
+class _LecturaDatosState extends State<LecturaDatos> {
   final _formKey = GlobalKey<FormState>();
   final List<DropdownMenuItem> _catalogo = [];
   final Catalogo _datosCatalogo = new Catalogo(id: -1, nombre: "");
@@ -31,7 +31,7 @@ class _ScanState extends State<ScanScreen> {
   String _idUsuario = "";
   String _nombreCliente = "";
 
-  _ScanState(this._idCatalogo);
+  _LecturaDatosState(this._idCatalogo);
 
   Future<String> getCatalogo() async {
     http.Response response =
@@ -88,7 +88,15 @@ class _ScanState extends State<ScanScreen> {
         appBar: new AppBar(
           title: new Text('Lecturas'),
         ),
-        body: new Center(
+        body: new Container(
+          decoration: new BoxDecoration(
+              color: Colors.white,
+              image:  new DecorationImage(
+                image: new AssetImage("images/borderbackground.jpg"),
+                fit: BoxFit.fill,
+                colorFilter: new ColorFilter.mode(Colors.black.withOpacity(0.1), BlendMode.dstATop),
+              )
+          ),
           child: new Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -103,13 +111,20 @@ class _ScanState extends State<ScanScreen> {
                     child: const Text('Leer Código Cliente')
                 ),
               ),
-              Text(_nombreCliente),
+
               new Form(
                 key: _formKey,
                 child: Container(
-                  padding: const EdgeInsets.all(40.0),
+                  padding: const EdgeInsets.only(top: 20.0, left: 40.0, right: 40.0, bottom: 10.0),
                   child: Column(
                     children: <Widget>[
+                      Text(_nombreCliente,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontStyle: FontStyle.italic,
+                            fontSize: 20
+                        ),
+                      ),
                       SearchableDropdown.single(
                         isExpanded: true,
                         items: _catalogo,
@@ -160,34 +175,6 @@ class _ScanState extends State<ScanScreen> {
                       new Padding(
                         padding: const EdgeInsets.only(top: 20.0),
                       ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: new MaterialButton(
-                          color: Constantes.colorBoton,
-                          textColor: Constantes.colorTextoBoton,
-                          height: 50.0,
-                          minWidth: 100.0,
-                          child: new Text(
-                            "Cambiar",
-                            style: TextStyle(fontSize: 20),
-                          ),
-                          onPressed: () =>
-                          {
-
-                            if (_formKey.currentState.validate()) {
-                              setState(() {
-                                _mostrarIndicador = true;
-                              }),
-                              _formKey.currentState.save(),
-                              _enviarLectura()
-                            }
-                          },
-                          splashColor: Constantes.colorSplashBoton,
-                        ),
-                      ),
-                      new Padding(
-                        padding: const EdgeInsets.only(top: 20.0),
-                      ),
                       Visibility(
                         visible: _mostrarIndicador,
                         child: CircularProgressIndicator(),
@@ -199,7 +186,53 @@ class _ScanState extends State<ScanScreen> {
 
             ],
           ),
-        ));
+        ),
+        bottomNavigationBar: BottomAppBar(
+          color: Constantes.colorPrimario,
+          child: FlatButton(
+            color: Constantes.colorPrimario,
+            textColor: Constantes.colorTextoBoton,
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget> [
+                  Icon(Icons.save),
+                  SizedBox(width: 10,),
+                  new Text(
+                    "Enviar",
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ]
+            ),
+            onPressed: ()=>{
+
+              if (_formKey.currentState.validate()) {
+                setState(() {
+                  _mostrarIndicador = true;
+                }),
+                _formKey.currentState.save(),
+                _enviarLectura()
+              }
+            },
+            splashColor: Constantes.colorSplashBoton,
+
+          ),
+        )
+    );
+  }
+
+  Future<void> scanQRTest() async {
+    String barcodeScanRes;
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _idCliente = int.parse(barcodeScanRes);
+    });
+
+    _getCliente();
   }
 
   Future<void> scanQR() async {
@@ -267,44 +300,26 @@ class _ScanState extends State<ScanScreen> {
         _mostrarIndicador = false;
       });
 
-      showDialog(
+      AwesomeDialog(
           context: context,
-          child: new AlertDialog(
-            title: new Text("Registro Lectura"),
-            content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Center(
-                    child: new SingleChildScrollView(
-                      child: new ListBody(
-                        children: <Widget>[
-                          new Icon(
-                              parsedJson["Error"] ? Icons.error : Icons
-                                  .check_circle,
-                              color: parsedJson["Error"] ? Colors.red : Colors
-                                  .green),
-                          new Text(parsedJson["Mensaje"]),
-                        ],
-                      ),
-                    ),
-                  ),
-                ]
-            ),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text('OK'),
-                onPressed: () {
-                  if (!parsedJson["Error"]) {
-                    Navigator.of(context).pop();
-                    _lectura = 0.00;
-                    _idCliente = -1;
-                  } else {
-                    Navigator.of(context).pop();
-                  }
-                },
-              ),
-            ],
-          ));
+          dialogType: parsedJson["Error"] ? DialogType.ERROR : DialogType.SUCCES,
+          headerAnimationLoop: false,
+          animType: AnimType.TOPSLIDE,
+          title: 'Registro Lectura',
+          desc:
+            parsedJson["Mensaje"],
+          //btnCancelOnPress: () {},
+          btnOkOnPress: () {
+            if (!parsedJson["Error"]) {
+              Navigator.of(context).pop();
+              _lectura = 0.00;
+              _idCliente = -1;
+            } else {
+              Navigator.of(context).pop();
+            }
+          })
+        ..show();
+
     } else {
       setState(() {
         _mostrarIndicador = false;
@@ -349,9 +364,11 @@ class _ScanState extends State<ScanScreen> {
     {
       setState((){
         if (parsedJson["Objeto"]["RazonSocial"] != "")
-          {}
+          {
+            _nombreCliente = 'Cliente: ${parsedJson["Objeto"]["RazonSocial"]} ';
+          }
         else {
-          _nombreCliente = '${_idCliente} - ${parsedJson["Objeto"]["Nombre"]} ${parsedJson["Objeto"]["Apellidos"]}';
+          _nombreCliente = 'Cliente: ${parsedJson["Objeto"]["Nombre"]} ${parsedJson["Objeto"]["Apellidos"]}';
         }
       });
 
